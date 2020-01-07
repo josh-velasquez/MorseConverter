@@ -1,11 +1,17 @@
-
-import java.util.*;
+import java.util.Scanner;
+import java.util.Objects;
+import java.util.HashMap;
+import java.util.Map;
 
 public class MorseConverter {
     public static Map<String,String> morseMap;
 
+    /**
+     * Initializes the dictionary
+     */
     private static Map<String,String> populateDictionary() {
         Map<String,String> map = new HashMap<String,String>();
+        map.put(" "," ");
         map.put("a",".-");
         map.put("b","-...");
         map.put("c","-.-.");
@@ -73,6 +79,9 @@ public class MorseConverter {
         }
     }
 
+    /**
+     * Converts morse code to string. Input is separated by spaces for every letter
+     */
     private static void MorseToString() {
         Scanner input = new Scanner(System.in);
         System.out.println("Enter morse to convert (- .)");
@@ -82,11 +91,18 @@ public class MorseConverter {
         String[] morseString = morse.split(" ");
         
         for (int i = 0; i< morseString.length; i++) {
-            output += getKey(morseString[i]) + " ";
+            String value = morseString[i];
+            if (!value.equals(" ")) {
+                output += getKey(value);
+            }
+            output += " ";
         }
         System.out.println("String: " + output);
     }
 
+    /**
+     * Gets the letter based on the morse code value
+     */
     private static String getKey(String morse) {
         for(String key : morseMap.keySet()) {
             if (Objects.equals(morseMap.get(key),morse)) {
@@ -96,10 +112,16 @@ public class MorseConverter {
         return null;
     }
 
+    /**
+     * Gets the morse code value based on the letter
+     */
     private static String getVal(String letter) {
         return morseMap.get(letter);
     }
 
+    /**
+     * Converts string to morse code
+     */
     private static void StringToMorse() {
         Scanner input = new Scanner(System.in);
         System.out.println("Enter string to convert");
@@ -108,7 +130,10 @@ public class MorseConverter {
         String output = "";
         for (int i = 0; i < morse.length(); i++) {
             String value = Character.toString(morse.charAt(i));
-            output += getVal(value) + " ";
+            if (!value.equals(" ")) {
+                output += getVal(value);
+            }
+            output += " ";
         }
         System.out.println("Morse Code: " + output);
     }
