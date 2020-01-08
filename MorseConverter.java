@@ -2,6 +2,13 @@ import java.util.Scanner;
 import java.util.Objects;
 import java.util.HashMap;
 import java.util.Map;
+import javax.sound.sampled.AudioInputStream; 
+import javax.sound.sampled.AudioSystem; 
+import javax.sound.sampled.Clip; 
+import java.io.File;
+import java.util.concurrent.TimeUnit;
+import java.io.BufferedReader;
+import java.io.FileReader;
 
 public class MorseConverter {
     public static Map<String,String> morseMap;
@@ -11,7 +18,9 @@ public class MorseConverter {
      */
     private static Map<String,String> populateDictionary() {
         Map<String,String> map = new HashMap<String,String>();
-        map.put(" "," ");
+        map.put("","");
+        map.put("",null);
+        map.put("","");
         map.put("a",".-");
         map.put("b","-...");
         map.put("c","-.-.");
@@ -62,6 +71,10 @@ public class MorseConverter {
                                 "0. Exit \n" +
                                 "1. Morse to string \n" +
                                 "2. String to morse \n" +
+                                "3. Morse file to string \n" +
+                                "4. String file to morse \n" +
+                                "5. Play morse sound \n" +
+                                "6. Play morse light \n" +
                                 ">> ");
             userChoice = input.nextInt();
             switch(userChoice) {
@@ -71,7 +84,16 @@ public class MorseConverter {
                     MorseToString();
                     break;
                 case 2:
-                    StringToMorse();
+                    stringToMorse();
+                    break;
+                case 3:
+                    fileMorseToString();
+                    break;
+                case 4:
+                    fileStringToMorse();
+                    break;
+                case 5:
+                    playMorseSound();
                     break;
                 default:
                     System.out.println("Invalid input.");
@@ -87,17 +109,21 @@ public class MorseConverter {
         System.out.println("Enter morse to convert (- .)");
         System.out.print(">> ");
         String morse = input.nextLine();
+        String output = convertMorseToString(morse);        
+        System.out.println("String: \n" + output);
+    }
+
+    private static String convertMorseToString(String morse) {
         String output = "";
         String[] morseString = morse.split(" ");
-        
-        for (int i = 0; i< morseString.length; i++) {
+        for (int i = 0; i < morseString.length; i++) {
             String value = morseString[i];
-            if (!value.equals(" ")) {
+            if (value != null || value != " ") {
                 output += getKey(value);
             }
             output += " ";
         }
-        System.out.println("String: " + output);
+        return output;
     }
 
     /**
@@ -122,19 +148,132 @@ public class MorseConverter {
     /**
      * Converts string to morse code
      */
-    private static void StringToMorse() {
+    private static void stringToMorse() {
         Scanner input = new Scanner(System.in);
         System.out.println("Enter string to convert");
         System.out.print(">> ");
-        String morse = input.nextLine();
+        String morse = input.nextLine().toLowerCase();
+        String output = convertStringToMorse(morse);
+        System.out.println("Morse Code: \n" + output);
+    }
+
+    private static String convertStringToMorse(String str) {
         String output = "";
-        for (int i = 0; i < morse.length(); i++) {
-            String value = Character.toString(morse.charAt(i));
+        for (int i = 0; i < str.length(); i++) {
+            String value = Character.toString(str.charAt(i));
             if (!value.equals(" ")) {
                 output += getVal(value);
             }
             output += " ";
         }
-        System.out.println("Morse Code: " + output);
+        return output;
+    }
+
+    private static void fileStringToMorse() {
+        Scanner input = new Scanner(System.in);
+        System.out.println("Enter file name");
+        System.out.print(">> ");
+        String filePath = input.nextLine();
+        BufferedReader reader;
+        String translatedLine = "";
+        try {
+            reader = new BufferedReader(new FileReader(filePath));
+            String line = reader.readLine();
+            while(line != null) {
+                translatedLine += convertStringToMorse(line);
+                line = reader.readLine();
+            }
+            reader.close();
+
+            System.out.println("Translated: \n" + translatedLine);
+        }
+        catch(Exception e) {
+            System.out.println("Error reading file");
+        }
+        
+    }
+
+    private static void fileMorseToString() {
+        Scanner input = new Scanner(System.in);
+        System.out.println("Enter file name");
+        System.out.print(">> ");
+        String filePath = input.nextLine();
+        String translatedLine = "";
+        BufferedReader reader;
+        try {
+            reader = new BufferedReader(new FileReader(filePath));
+            String line = reader.readLine();
+            while(line != null) {
+                translatedLine += convertMorseToString(line);
+                line = reader.readLine();
+            }
+            reader.close();
+
+            System.out.println("Translated: \n" + translatedLine);
+        }
+        catch(Exception e) {
+            System.out.println("Error reading file");
+        }
+        
+    }
+
+    private static void playMorseSound() {
+        Scanner input = new Scanner(System.in);
+        System.out.println("Enter morse code");
+        System.out.print(">> ");
+        String morse = input.nextLine();
+        String[] codes = morse.split("");
+        for (int i = 0; i < codes.length; i++) {
+            if (codes[i] == ".") {
+                playDot();
+                try {
+                    TimeUnit.SECONDS.sleep(1);
+                }
+                catch(Exception e) {
+                    System.out.println("TE");
+                }
+                
+            }
+            else if (codes[i] == "-") {
+                playDash();
+                try {
+                    TimeUnit.SECONDS.sleep(1);
+                }
+                catch(Exception e) {
+                    System.out.println("TE");
+                }
+            }
+        }
+    }
+
+    private static void playDot() {
+        try {
+            String dotPath = System.getProperty("user.dir") + "/dot.wav";
+            AudioInputStream audio = AudioSystem.getAudioInputStream(new File(dotPath).getAbsoluteFile());
+            Clip clip = AudioSystem.getClip();
+            clip.open(audio);
+            clip.start();
+        }
+        catch(Exception e) {
+            System.out.println("Error");
+        }
+    }
+
+    private static void playDash() {
+        try {
+            String dashPath = System.getProperty("user.dir") + "/dash.wav";
+            AudioInputStream audio = AudioSystem.getAudioInputStream(new File(dashPath).getAbsoluteFile());
+            Clip clip = AudioSystem.getClip();
+            clip.open(audio);
+            clip.start();
+        }
+        catch(Exception e) {
+            System.out.println("Error");
+        }
+    }
+
+    private static void createWavFile() {
+        // TO-DO
+        // Auto create a wav file when translated. File name is the date and time
     }
 }
