@@ -1,6 +1,7 @@
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
+import java.io.File;
 
 public class Sound {
 
@@ -32,5 +33,10 @@ public class Sound {
         } catch (Exception e) {
             System.out.println("Error");
         }
+    }
+
+    private static void createWavFile() {
+        // TO-DO
+        // Auto create a wav file when translated. File name is the date and time
     }
 }

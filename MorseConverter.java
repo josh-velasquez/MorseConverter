@@ -5,8 +5,12 @@ import java.util.Map;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+
 import java.io.File;
 import java.util.concurrent.TimeUnit;
+import java.awt.Color;
 import java.io.BufferedReader;
 import java.io.FileReader;
 
@@ -74,13 +78,12 @@ public class MorseConverter {
             case 0:
                 break;
             case 1:
-                MorseToString();
+                morseToString();
                 break;
             case 2:
                 stringToMorse();
                 break;
             case 3:
-                // test();
                 fileMorseToString();
                 break;
             case 4:
@@ -88,6 +91,9 @@ public class MorseConverter {
                 break;
             case 5:
                 playMorseSound();
+                break;
+            case 6:
+                flashPanel();
                 break;
             default:
                 System.out.println("Invalid input.");
@@ -98,7 +104,7 @@ public class MorseConverter {
     /**
      * Converts morse code to string. Input is separated by spaces for every letter
      */
-    private static void MorseToString() {
+    private static void morseToString() {
         Scanner input = new Scanner(System.in);
         System.out.println("Enter morse to convert (- .)");
         System.out.print(">> ");
@@ -118,7 +124,7 @@ public class MorseConverter {
         for (int i = 0; i < morseString.length; i++) {
             value = morseString[i];
             if (value != null || value != " ") {
-                output += getKey(value);
+                output += getKey(value) != null ? getKey(value) : "?";
             }
             output += " ";
         }
@@ -157,6 +163,56 @@ public class MorseConverter {
     }
 
     /**
+     * Spawns a panel and flashes the panel based on the morse code given
+     */
+    private static void flashPanel() {
+        JFrame frame = new JFrame("Morse Code");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setVisible(true);
+        JPanel panel = new JPanel();
+        panel.setBackground(Color.black);
+        frame.add(panel);
+        frame.setSize(400, 400);
+        Scanner input = new Scanner(System.in);
+        System.out.println("Enter morse code");
+        System.out.print(">> ");
+        String morse = input.nextLine();
+        String[] codes = morse.split("");
+        for (int i = 0; i < codes.length; i++) {
+            if (codes[i].equals(".")) {
+                panel.setBackground(Color.white);
+                try {
+                    TimeUnit.MILLISECONDS.sleep(200);
+                } catch (Exception e) {
+                    System.out.println("Failed to delay");
+                }
+            } else if (codes[i].equals("-")) {
+                panel.setBackground(Color.white);
+                try {
+                    TimeUnit.MILLISECONDS.sleep(500);
+                } catch (Exception e) {
+                    System.out.println("Failed to delay");
+                }
+            } else if (codes[i].equals(" ")) {
+                try {
+                    panel.setBackground(Color.black);
+                    TimeUnit.MILLISECONDS.sleep(700);
+                } catch (Exception e) {
+                    System.out.println("Failed to delay");
+                }
+            }
+            panel.setBackground(Color.black);
+            try {
+                panel.setBackground(Color.black);
+                TimeUnit.MILLISECONDS.sleep(200);
+            } catch (Exception e) {
+                System.out.println("Failed to delay");
+            }
+        }
+        frame.dispose();
+    }
+
+    /**
      * Converts string to morse. Maps the dictionary keys to its value.
      */
     private static String convertStringToMorse(String str) {
@@ -165,7 +221,7 @@ public class MorseConverter {
         for (int i = 0; i < str.length(); i++) {
             value = Character.toString(str.charAt(i));
             if (!value.equals(" ")) {
-                output += getVal(value);
+                output += getVal(value) != null ? getVal(value) : "?";
             }
             output += " ";
         }
@@ -190,7 +246,6 @@ public class MorseConverter {
                 line = reader.readLine();
             }
             reader.close();
-
             System.out.println("Translated: \n" + translatedLine);
         } catch (Exception e) {
             System.out.println("Error reading file");
@@ -238,14 +293,14 @@ public class MorseConverter {
             if (codes[i].equals(".")) {
                 playDot();
                 try {
-                    TimeUnit.MILLISECONDS.sleep(400);
+                    TimeUnit.MILLISECONDS.sleep(450);
                 } catch (Exception e) {
                     System.out.println("Failed to delay");
                 }
             } else if (codes[i].equals("-")) {
                 playDash();
                 try {
-                    TimeUnit.MILLISECONDS.sleep(400);
+                    TimeUnit.MILLISECONDS.sleep(450);
                 } catch (Exception e) {
                     System.out.println("Failed to delay");
                 }
@@ -287,10 +342,5 @@ public class MorseConverter {
         } catch (Exception e) {
             System.out.println("Error");
         }
-    }
-
-    private static void createWavFile() {
-        // TO-DO
-        // Auto create a wav file when translated. File name is the date and time
     }
 }
